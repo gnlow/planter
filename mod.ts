@@ -12,7 +12,17 @@ const hash = async (seed: number, index: number) => await xxhash().then(
 )
 
 export default (seed: number) => 
-    new Proxy({} as Record<number, Promise<number>>, {
+    new Proxy({
+        async *[Symbol.asyncIterator](){
+            let index = 0
+            while(true){
+                yield await hash(seed, index++)
+            }
+        }
+    } as {
+        [index: number]: Promise<number>
+        [Symbol.asyncIterator]: AsyncGeneratorFunction
+    }, {
         get: async (target, index: number) => {
             if(typeof index == "number") {
                 return await hash(seed, index)
