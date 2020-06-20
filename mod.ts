@@ -13,6 +13,9 @@ const hash = async (seed: number, index: number) => await xxhash().then(
 
 export default (seed: number) => 
     new Proxy({} as Record<number, Promise<number>>, {
-        get: async (target, index: number) => 
-                await hash(seed, index)
+        get: async (target, index: number) => {
+            if(typeof index == "number") {
+                return await hash(seed, index)
+            }
+        }
     })
