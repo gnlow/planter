@@ -1,12 +1,18 @@
 //@deno-types="https://unpkg.com/xxhash-wasm/types.d.ts"
 import xxhash from "https://unpkg.com/xxhash-wasm/esm/xxhash-wasm.js"
 
-const planter = async (seed: number) => await xxhash().then(({h32}: any) => {
-    return parseInt(
-        h32(
-            `${String(seed)}`
-        ), 
-        16) / 0xffffffff
-})
+const hash = async (seed: number, index: number) => await xxhash().then(
+    ({h32}: any) => 
+        parseInt(
+            h32(
+                `${String(seed)} ${index}`
+            ), 
+            16
+        ) / 0xffffffff
+)
 
-console.log(await planter(Math.random()))
+export default (seed: number) => 
+    new Proxy({} as Record<number, Promise<number>>, {
+        get: async (target, index: number) => 
+                await hash(seed, index)
+    })
