@@ -15,11 +15,11 @@ export default (seed: number) =>
         [index: number]: number
         [Symbol.iterator]: GeneratorFunction
     }, {
-        get: (target, index: number) => {
+        get: (target, index: any) => {
             if(index in target){
                 return target[index]
             }
-            if(typeof index == "number") {
+            if(!Number.isNaN(Number(index))) {
                 return hash(seed, index)
             }
         }
