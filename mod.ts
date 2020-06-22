@@ -18,10 +18,9 @@ export default (seed: number) =>
         get: (target, index: number) => {
             if(index in target){
                 return target[index]
-            }else{
-                if(typeof index == "number") {
-                    return hash(seed, index)
-                }
+            }
+            if(typeof index == "number") {
+                return hash(seed, index)
             }
         }
     })
