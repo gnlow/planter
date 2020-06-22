@@ -1,31 +1,27 @@
-//@deno-types="https://unpkg.com/xxhash-wasm/types.d.ts"
-import xxhash from "https://unpkg.com/xxhash-wasm/esm/xxhash-wasm.js"
+import {xxHash32} from "https://raw.githubusercontent.com/gnlow/deno-xxhash/master/mod.ts"
 
-const hash = async (seed: number, index: number) => await xxhash().then(
-    ({h32}: any) => 
-        parseInt(
-            h32(
-                `${String(seed)} ${index}`
-            ), 
-            16
-        ) / 0xffffffff
-)
+const hash = (seed: number, index: number) => 
+    xxHash32(`${String(seed)} ${index}`) / 0xffffffff
 
 export default (seed: number) => 
     new Proxy({
-        async *[Symbol.asyncIterator](){
+        *[Symbol.iterator](){
             let index = 0
             while(true){
-                yield await hash(seed, index++)
+                yield hash(seed, index++)
             }
         }
     } as {
-        [index: number]: Promise<number>
-        [Symbol.asyncIterator]: AsyncGeneratorFunction
+        [index: number]: number
+        [Symbol.iterator]: GeneratorFunction
     }, {
-        get: async (target, index: number) => {
-            if(typeof index == "number") {
-                return await hash(seed, index)
+        get: (target, index: number) => {
+            if(index in target){
+                return target[index]
+            }else{
+                if(typeof index == "number") {
+                    return hash(seed, index)
+                }
             }
         }
     })
